@@ -39,15 +39,27 @@ class PendatangController extends Controller
     {
         $file = $request->file('foto');
 
-        $requestTokenObj = $this->requestFaceToken($file);
+        // Mendapatkan face_token
+        $requestFaceToken = $this->requestFaceToken($file);
+        $dataRequestFaceToken = json_decode($requestFaceToken->getBody()->getContents());
+        $face_token = $dataRequestFaceToken->{'faces'}[0]->{'face_token'};
 
-        $json = $requestTokenObj->getBody()->getContents();
+        // Menyimpan face_token ke faceset
+        $saveFaceToken = $this->addFaceTokenToFaceset($face_token);
+        $statusCode = $saveFaceToken->getStatusCode();
+        $reasonPhrase = $saveFaceToken->getReasonPhrase();
 
-        $data = json_decode($json);
+        if ($statusCode == 200) {
+            $pendatang = Pendatang::create([
+                'nik' => $request->nik,
+                'nama' => $request->nama,
+                'face_token' => $face_token
+            ]);
 
-        $face_token = $data->{'faces'}[0]->{'face_token'};
-
-        return $face_token;
+            return $pendatang;
+        } else {
+            return response(['status' => $statusCode, 'reason' => $reasonPhrase]);
+        }
     }
 
     /**
@@ -95,6 +107,12 @@ class PendatangController extends Controller
         //
     }
 
+    /**
+     * Meminta 'face_token' dari suatu foto yang diupload
+     * 
+     * @param $file foto
+     * @return psr7 response
+     */
     public function requestFaceToken($file) {
 
         $client = new \GuzzleHttp\Client();
@@ -102,7 +120,7 @@ class PendatangController extends Controller
         $api_key = "aYKmBusFTtwLB5Y6vTZpP3nXqE7Bg0iA";
         $api_secret = "MQRWGyqYlvMkYcc1eRWFtTiNbtw8mVuf";
 
-        $respon = $client->request('POST', $getFaceTokenUrl, [
+        $response = $client->request('POST', $getFaceTokenUrl, [
             'multipart' => [
                 [
                     'name' => 'api_key',
@@ -119,6 +137,47 @@ class PendatangController extends Controller
             ]
         ]);
 
-        return $respon;
+        return $response;
+    }
+
+
+    /**
+     * Menyimpan 'face_token' ke faceset 'pendatang_faceset'
+     * Karena 'face-token' akan expired 72 jam setelah dibuat jika
+     * tidak disimpan ke faceset
+     * 
+     * @param 'face_token'
+     * @return psr7 response 
+     */
+    public function addFaceTokenToFaceset($token) {
+
+        $client = new \GuzzleHttp\Client();
+        $addToFacesetServer = "https://api-us.faceplusplus.com/facepp/v3/faceset/addface";
+        $api_key = "aYKmBusFTtwLB5Y6vTZpP3nXqE7Bg0iA";
+        $api_secret = "MQRWGyqYlvMkYcc1eRWFtTiNbtw8mVuf";
+        $outer_id = "pendatang_faceset";
+
+        $response = $client->request('POST', $addToFacesetServer, [
+            'multipart' => [
+                [
+                    'name' => 'api_key',
+                    'contents' => $api_key
+                ],
+                [
+                    'name' => 'api_secret',
+                    'contents' => $api_secret
+                ],
+                [
+                    'name' => 'outer_id',
+                    'contents' => $outer_id
+                ],
+                [
+                    'name' => 'face_tokens',
+                    'contents' => $token
+                ]
+            ]
+        ]);
+
+        return $response;
     }
 }

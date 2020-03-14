@@ -107,6 +107,63 @@ class PendatangController extends Controller
         //
     }
 
+    // ================================================================================= //
+
+    /**
+     * Mengembalikan tingkan kemiripan gambar terdaftar dengan gambar yang dikirim
+     * @return confidence
+     */
+    public function compare(Request $request) {
+
+        // Mendapatkan face_token dari database
+        $pendatang = Pendatang::where('nik', $request->nik)->first();
+        $face_token = $pendatang->face_token;
+        $file = $request->file('foto');
+
+        //Melakukan compare
+        $faceCompare = $this->compareToApi($face_token, $file);
+        $compareResult = json_decode($faceCompare->getBody()->getContents());
+        $confidence = $compareResult->{'confidence'};
+
+        return response(['confidence' => $confidence]);
+    }
+
+    /**
+     * Melakukan compare wajah dengan face_token ke API
+     * @param $token
+     * @return psr7 response
+     */
+    public function compareToApi($token, $file) {
+
+        $client = new \GuzzleHttp\Client();
+        $faceCompareUrl = "https://api-us.faceplusplus.com/facepp/v3/compare";
+        $api_key = "aYKmBusFTtwLB5Y6vTZpP3nXqE7Bg0iA";
+        $api_secret = "MQRWGyqYlvMkYcc1eRWFtTiNbtw8mVuf";
+
+        $response = $client->request('POST', $faceCompareUrl, [
+            'multipart' => [
+                [
+                    'name' => 'api_key',
+                    'contents' => $api_key
+                ],
+                [
+                    'name' => 'api_secret',
+                    'contents' => $api_secret
+                ],
+                [
+                    'name' => 'face_token1',
+                    'contents' => $token
+                ],
+                [
+                    'name' => 'image_file2',
+                    'contents' => fopen($file->getPathName(), 'r')
+                ]
+            ]
+        ]);
+
+        return $response;
+    }
+
     /**
      * Meminta 'face_token' dari suatu foto yang diupload
      * 

@@ -1,32 +1,63 @@
-version: "2"
+version: "3"
 services:
-  webserver:
-    image: nginx:alpine
-    volumes:
-      - . :/var/www
-      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
-    ports:
-      - "8080:80"
+  #PHP Service
   app:
-    ## read php image from our custom docker image ##
     build:
       context: .
-      dockerfile: ./docker/php/Dockerfile
-    volumes:
-      ## copy project files to /var/www ##
-      - . :/var/www
-    working_dir: /var/www
-
-  db:
-    image: mysql:5.7
-    ports:
-      - "3388:3306"
-    volumes:
-      - ./docker-volumes-data/db:/var/lib/database
+      dockerfile: Dockerfile
+    image: digitalocean.com/php
+    container_name: app
+    restart: unless-stopped
+    tty: true
     environment:
-      MYSQL_DATABASE: face-plus
-      MYSQL_ROOT_PASSWORD: root13
-  redis:
-    image: redis
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www
     volumes:
-      - ./docker-volumes-data/redis:/data
+      - ./:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - app-network
+
+  #Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - app-network
+
+  #MySQL Service
+  db:
+    image: mysql:5.7.22
+    container_name: db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: root13
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - dbdata:/var/lib/mysql/
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - app-network
+
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
+#Volumes
+volumes:
+  dbdata:
+    driver: local

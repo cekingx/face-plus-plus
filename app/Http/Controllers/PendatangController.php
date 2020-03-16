@@ -125,7 +125,11 @@ class PendatangController extends Controller
         $compareResult = json_decode($faceCompare->getBody()->getContents());
         $confidence = $compareResult->{'confidence'};
 
-        return response(['confidence' => $confidence]);
+        return response([
+            'nik' => $pendatang->nik,
+            'nama' => $pendatang->nama,
+            'confidence' => $confidence
+        ]);
     }
 
     /**

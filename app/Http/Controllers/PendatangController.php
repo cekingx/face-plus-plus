@@ -26,7 +26,7 @@ class PendatangController extends Controller
      */
     public function create()
     {
-        return view('pages.daftar-wajah');
+        return view('pages.pendatang.daftar-wajah');
     }
 
     /**
@@ -50,11 +50,24 @@ class PendatangController extends Controller
         $reasonPhrase = $saveFaceToken->getReasonPhrase();
 
         if ($statusCode == 200) {
-            $pendatang = Pendatang::create([
-                'nik' => $request->nik,
-                'nama' => $request->nama,
-                'face_token' => $face_token
-            ]);
+            $pendatang = Pendatang::make(
+                $request->only([
+                    'nik', 
+                    'nama',
+                    'tempat_lahir',
+                    'tanggal_lahir',
+                    'jenis_kelamin',
+                    'gol_darah',
+                    'alamat',
+                    'agama',
+                    'status_perkawinan',
+                    'pekerjaan',
+                    'kewarganegaraan' 
+                ])
+            );
+
+            $pendatang->face_token = $face_token;
+            $pendatang->save();
 
             return $pendatang;
         } else {
@@ -116,7 +129,7 @@ class PendatangController extends Controller
     public function compare(Request $request) {
 
         // Mendapatkan face_token dari database
-        $pendatang = Pendatang::where('nik', $request->nik)->first();
+        $pendatang = Pendatang::where('nik', $request->nik)->with('riwayat')->first();
         $face_token = $pendatang->face_token;
         $file = $request->file('foto');
 
@@ -124,12 +137,9 @@ class PendatangController extends Controller
         $faceCompare = $this->compareToApi($face_token, $file);
         $compareResult = json_decode($faceCompare->getBody()->getContents());
         $confidence = $compareResult->{'confidence'};
+        $pendatang->confidence = $confidence;
 
-        return response([
-            'nik' => $pendatang->nik,
-            'nama' => $pendatang->nama,
-            'confidence' => $confidence
-        ]);
+        return $pendatang;
     }
 
     /**

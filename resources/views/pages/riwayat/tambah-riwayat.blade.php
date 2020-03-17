@@ -9,7 +9,7 @@
             <div class="card-header">Data Diri Pendatang</div>
 
             <div class="card-body">
-              <form action="{{route('pendatang.store')}}" method="post" enctype="multipart/form-data">
+              <form action="{{route('riwayat_tinggal.store')}}" method="post" enctype="multipart/form-data">
                 @csrf
 
                 {{-- NIK --}}
@@ -21,21 +21,13 @@
                   </div>
                 </div>
 
-                {{-- NAMA --}}
+                {{-- Riwayat Tinggal --}}
+                
                 <div class="form-group row">
-                  <label for="nama" class="col-md-4 col-form-label text-md-right">{{ __('Nama') }}</label>
+                  <label for="riwayat_tinggal" class="col-md-4 col-form-label text-md-right">{{ __('Riwayat Tinggal') }}</label>
 
                   <div class="col-md-6">
-                    <input id="nama" type="text" class="form-control" name="nama">
-                  </div>
-                </div>
-
-                {{-- FOTO --}}
-                <div class="form-group row">
-                  <label for="foto" class="col-md-4 col-form-label text-md-right">{{ __('Foto') }}</label>
-
-                  <div class="col-md-6">
-                    <input id="foto" type="file" name="foto">
+                    <textarea class="form-control" id="riwayat_tinggal" name="riwayat_tinggal" rows="3"></textarea>
                   </div>
                 </div>
 

@@ -18,3 +18,4 @@ Route::get('/', function () {
 });
 
 Route::resource('pendatang', 'PendatangController');
+Route::resource('riwayat_tinggal', 'RiwayatTinggalController');

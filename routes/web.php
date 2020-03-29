@@ -20,3 +20,6 @@ Route::get('/', function () {
 Route::resource('pendatang', 'PendatangController');
 Route::resource('riwayat_tinggal', 'RiwayatTinggalController');
 Route::resource('petugas', 'PetugasController');
+Route::resource('identifikasi', 'IdentifikasiController');
+
+Route::get('/hasil_identifikasi/{uuid}', 'IdentifikasiController@show_uuid');

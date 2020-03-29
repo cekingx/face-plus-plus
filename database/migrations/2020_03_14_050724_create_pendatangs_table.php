@@ -21,6 +21,9 @@ class CreatePendatangsTable extends Migration
             $table->date('tanggal_lahir');
             $table->enum('jenis_kelamin', ['laki-laki', 'perempuan']);
             $table->enum('gol_darah', ['a', 'b', 'ab', 'o']);
+            $table->string('kabupaten', 50);
+            $table->string('kecamatan', 50);
+            $table->string('desa', 50);
             $table->text('alamat');
             $table->string('agama', 50);
             $table->enum('status_perkawinan', ['kawin', 'belum_kawin']);

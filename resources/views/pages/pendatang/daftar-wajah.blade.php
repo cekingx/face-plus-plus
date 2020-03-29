@@ -76,6 +76,33 @@
                   </div>
                 </div>
 
+                {{-- KABUPATEN --}}
+                <div class="form-group row">
+                  <label for="kabupaten" class="col-md-4 col-form-label text-md-right">{{ __('Kabupaten') }}</label>
+
+                  <div class="col-md-6">
+                    <input id="kabupaten" type="text" class="form-control" name="kabupaten">
+                  </div>
+                </div>
+
+                {{-- KECAMATAN --}}
+                <div class="form-group row">
+                  <label for="kecamatan" class="col-md-4 col-form-label text-md-right">{{ __('Kecamatan') }}</label>
+
+                  <div class="col-md-6">
+                    <input id="kecamatan" type="text" class="form-control" name="kecamatan">
+                  </div>
+                </div>
+
+                {{-- DESA --}}
+                <div class="form-group row">
+                  <label for="desa" class="col-md-4 col-form-label text-md-right">{{ __('Desa') }}</label>
+
+                  <div class="col-md-6">
+                    <input id="desa" type="text" class="form-control" name="desa">
+                  </div>
+                </div>
+
                 {{-- ALAMAT --}}
                 <div class="form-group row">
                   <label for="alamat" class="col-md-4 col-form-label text-md-right">{{ __('Alamat') }}</label>

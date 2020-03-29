@@ -20,3 +20,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::post('/compare', 'PendatangController@compare');
 Route::post('/login', 'PetugasController@login');
+
+Route::get('/uuid', function() {
+    $uuid = Uuid::generate()->string;
+    return response(["uuid" => $uuid]);
+});

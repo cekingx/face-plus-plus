@@ -89,4 +89,11 @@ class RiwayatTinggalController extends Controller
     {
         //
     }
+
+    public function showByNik($nik) {
+        $data = Pendatang::where('nik', $nik)->with('riwayat')->first();
+        $result = $data->riwayat;
+
+        return view('pages.riwayat.show')->with('data', $result);
+    }
 }

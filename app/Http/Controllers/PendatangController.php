@@ -86,7 +86,13 @@ class PendatangController extends Controller
      */
     public function show(Pendatang $pendatang)
     {
-        //
+        return view('pages.pendatang.show');
+    }
+
+    public function showByNik($nik) {
+        $data = Pendatang::where('nik', $nik)->first();
+
+        return view('pages.pendatang.show')->with('data', $data);
     }
 
     /**

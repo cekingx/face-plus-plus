@@ -23,3 +23,5 @@ Route::resource('petugas', 'PetugasController');
 Route::resource('identifikasi', 'IdentifikasiController');
 
 Route::get('/hasil_identifikasi/{uuid}', 'IdentifikasiController@show_uuid');
+Route::get('/nik/{nik}', 'PendatangController@showByNik')->name('pendatang.show_nik');
+Route::get('/riwayat/{nik}', 'RiwayatTinggalController@showByNik')->name('riwayat.show_nik');

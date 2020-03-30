@@ -59,7 +59,7 @@ class IdentifikasiController extends Controller
         $dataRequestFaceToken = json_decode($requestFaceToken->getBody()->getContents());
         $face_token2 = $dataRequestFaceToken->{'faces'}[0]->{'face_token'};
 
-        // UUID untuk face_token1
+        // UUID untuk proses identifikasi face_token2
         $uuid = Uuid::generate()->string;
 
         // 12 digit kode nik
@@ -103,9 +103,11 @@ class IdentifikasiController extends Controller
     }
 
     public function show_uuid($uuid) {
-        $data = Identifikasi::where('uuid', $uuid)->get();
+        $result = Identifikasi::where('uuid', $uuid)->get();
 
-        return $data;
+        $data = response(['uuid' => $uuid, 'result' => $result]);
+
+        return view('pages.identifikasi.show')->with('data', $result);
     }
 
     /**

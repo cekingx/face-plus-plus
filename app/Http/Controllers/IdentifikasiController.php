@@ -88,7 +88,8 @@ class IdentifikasiController extends Controller
             ]);
         }
 
-        return Identifikasi::where('uuid', $uuid)->get();
+        // return Identifikasi::where('uuid', $uuid)->get();
+        return response(['url' => 'http://cekingx.xyz/hasil_identifikasi/' . $uuid]);
     }
 
     /**

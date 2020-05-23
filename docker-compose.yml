@@ -1,12 +1,11 @@
 version: "3"
 services:
   #PHP Service
-  app:
+  face-plus-app:
     build:
       context: .
       dockerfile: Dockerfile
-    image: digitalocean.com/php
-    container_name: app
+    container_name: face-plus-app
     restart: unless-stopped
     tty: true
     environment:
@@ -17,47 +16,35 @@ services:
       - ./:/var/www
       - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
     networks:
-      - app-network
+      - proxy
 
   #Nginx Service
-  webserver:
+  face-plus-server:
     image: nginx:alpine
-    container_name: webserver
+    container_name: face-plus-server
     restart: unless-stopped
     tty: true
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
       - ./:/var/www
       - ./nginx/conf.d/:/etc/nginx/conf.d/
     networks:
-      - app-network
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.face-plus.entrypoints=http"
+      - "traefik.http.routers.face-plus.rule=Host(`face.cekingx.my.id`)"
+      - "traefik.http.middlewares.face-plus-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.face-plus.middlewares=face-plus-https-redirect"
+      - "traefik.http.routers.face-plus-secure.entrypoints=https"
+      - "traefik.http.routers.face-plus-secure.rule=Host(`face.cekingx.my.id`)"
+      - "traefik.http.routers.face-plus-secure.tls=true"
+      - "traefik.http.routers.face-plus-secure.tls.certresolver=http"
+      - "traefik.http.routers.face-plus-secure.service=face-plus"
+      - "traefik.http.services.face-plus.loadbalancer.server.port=80"
+      - "traefik.docker.network=proxy"
 
-  #MySQL Service
-  db:
-    image: mysql:5.7.22
-    container_name: db
-    restart: unless-stopped
-    tty: true
-    ports:
-      - "3307:3306"
-    environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_ROOT_PASSWORD: root13
-      SERVICE_TAGS: dev
-      SERVICE_NAME: mysql
-    volumes:
-      - dbdata:/var/lib/mysql/
-      - ./mysql/my.cnf:/etc/mysql/my.cnf
-    networks:
-      - app-network
 
 #Docker Networks
 networks:
-  app-network:
-    driver: bridge
-#Volumes
-volumes:
-  dbdata:
-    driver: local
+  proxy:
+    external: true
